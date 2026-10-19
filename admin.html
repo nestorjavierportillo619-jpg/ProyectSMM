@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Enterprise Admin • Panel Corporativo</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #07090e;
+    color: #f1f5f9;
+  }
+  .card {
+    background: linear-gradient(145deg, #0d111a 0%, #080b11 100%);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+  }
+  input, select, textarea {
+    outline: none;
+  }
+  .navbtn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #toast {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #07090e; }
+  ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.2); border-radius: 9999px; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl font-bold hidden z-[100] shadow-2xl border border-white/10 max-w-[90%] text-center text-xs backdrop-blur-md"></div>
+
+<!-- LOCK SCREEN -->
+<div id="lock" class="min-h-screen flex items-center justify-center p-4 bg-[#07090e]">
+  <div class="card p-8 w-full max-w-sm text-center relative overflow-hidden">
+    <div class="w-14 h-14 bg-gradient-to-tr from-blue-500/20 to-indigo-600/20 border border-blue-500/30 rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 text-blue-400">
+      ✦
+    </div>
+    <h1 class="font-black text-xl tracking-tight mb-1 text-white">Enterprise <span class="text-blue-500">Admin</span></h1>
+    <p class="text-xs text-blue-400/80 mb-6 font-medium">Acceso Corporativo Seguro</p>
+    <div class="space-y-3">
+      <input id="keyInput" type="password" placeholder="Master Key" class="w-full bg-[#04060a] p-3.5 rounded-xl text-xs border border-white/10 text-center text-white focus:border-blue-500/50 transition" onkeydown="if(event.key==='Enter')unlock()">
+      <button onclick="unlock()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 text-white py-3.5 rounded-xl font-black text-xs shadow-lg active:scale-[0.99] transition">Autenticar Sistema</button>
+    </div>
+    <p id="lockErr" class="text-red-400 text-xs mt-3 font-semibold"></p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main" class="hidden min-h-screen flex flex-col">
+  <!-- HEADER -->
+  <header class="p-4 px-6 flex justify-between items-center bg-[#0d111a]/95 backdrop-blur-md sticky top-0 z-40 border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 font-bold">
+        ✦
+      </div>
+      <div>
+        <div class="font-black text-sm text-white tracking-wide">Enterprise <span class="text-blue-500">Admin</span></div>
+        <div class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Servidores Sincronizados
+        </div>
+      </div>
+    </div>
+    <button onclick="logout()" class="text-xs bg-red-500/10 border border-red-500/20 text-red-300 hover:bg-red-500/20 px-4 py-2 rounded-xl font-bold transition active:scale-95">Cerrar Sesión</button>
+  </header>
+
+  <div class="flex flex-col md:flex-row flex-1">
+    <!-- NAVIGATION -->
+    <nav class="md:w-60 bg-[#0d111a] p-3 flex md:flex-col gap-1 overflow-x-auto md:min-h-screen border-r border-white/5 shrink-0">
+      <button onclick="tab('dash')" id="b-dash" class="navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap">Dashboard</button>
+      <button onclick="tab('prov')" id="b-prov" class="navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap">Proveedores API</button>
+      <button onclick="tab('serv')" id="b-serv" class="navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap">Catálogo de Servicios</button>
+      <button onclick="tab('users')" id="b-users" class="navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap">Gestión de Clientes</button>
+      <button onclick="tab('res')" id="b-res" class="navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap">Red de Socios / Revendedores</button>
+      <button onclick="tab('orders')" id="b-orders" class="navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap">Historial de Órdenes</button>
+      <button onclick="tab('set')" id="b-set" class="navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap">Configuración Global</button>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto space-y-5">
+
+      <!-- DASHBOARD TAB -->
+      <div id="t-dash">
+        <div class="mb-5">
+          <h2 class="font-black text-xl tracking-tight text-white">Indicadores Generales</h2>
+          <p class="text-xs text-gray-400">Resumen operativo y métricas financieras de la plataforma.</p>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <div class="card stat-card p-4">
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Servicios Activos</p>
+            <p id="cServ" class="text-2xl font-black text-blue-400 font-mono">0</p>
+          </div>
+          <div class="card stat-card p-4">
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Clientes Totales</p>
+            <p id="cUsers" class="text-2xl font-black text-white font-mono">0</p>
+          </div>
+          <div class="card stat-card p-4">
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Órdenes Totales</p>
+            <p id="cOrders" class="text-2xl font-black text-emerald-400 font-mono">0</p>
+          </div>
+          <div class="card stat-card p-4">
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Revendedores</p>
+            <p id="cRes" class="text-2xl font-black text-indigo-400 font-mono">0</p>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-bold text-sm mb-3 text-white">Saldos Disponibles en Proveedores</h3>
+          <div id="provBal" class="grid md:grid-cols-2 gap-2 text-xs"></div>
+        </div>
+      </div>
+
+      <!-- PROVEEDORES TAB -->
+      <div id="t-prov" class="hidden">
+        <div class="mb-5">
+          <h2 class="font-black text-xl tracking-tight text-white">Infraestructura de Proveedores API</h2>
+          <p class="text-xs text-gray-400">Control de pasarelas y conexiones SMM externas.</p>
+        </div>
+        <div class="card p-5 mb-5 space-y-3">
+          <h3 class="font-bold text-xs text-blue-400 uppercase tracking-wider">Añadir Proveedor</h3>
+          <div class="grid md:grid-cols-2 gap-2.5">
+            <input id="p-name" placeholder="Nombre (ej. Proveedor A)" class="bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white">
+            <input id="p-priority" type="number" placeholder="Prioridad (1 = Principal)" class="bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white">
+            <input id="p-url" placeholder="https://api.proveedor.com/v2" class="bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 md:col-span-2 text-white">
+            <input id="p-key" type="password" placeholder="API Key de acceso" class="bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 md:col-span-2 text-white">
+          </div>
+          <button id="btn-add-prov" onclick="addProv()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-bold text-xs shadow transition">Añadir Proveedor</button>
+        </div>
+        <div id="provList" class="space-y-2.5"></div>
+      </div>
+
+      <!-- SERVICIOS TAB -->
+      <div id="t-serv" class="hidden">
+        <div class="mb-5">
+          <h2 class="font-black text-xl tracking-tight text-white">Catálogo de Servicios</h2>
+          <p class="text-xs text-gray-400">Edición de precios unitarios, visibilidad y estado global.</p>
+        </div>
+
+        <div class="card p-4 mb-5 space-y-3">
+          <div class="flex flex-wrap gap-2.5 items-center justify-between">
+            <div class="relative flex-1 min-w-[200px]">
+              <input id="sSearch" oninput="renderServ()" placeholder="Buscar por nombre o ID..." class="w-full bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white placeholder-gray-500">
+            </div>
+            <select id="catSelect" onchange="renderServ()" class="bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-gray-300 min-w-[180px]">
+              <option value="all">Todas las categorías</option>
+            </select>
+          </div>
+
+          <!-- BOTONES DE FILTRO Y ACCIONES AUTO-AJUSTABLES (EN AZUL PROFESIONAL) -->
+          <div class="pt-2.5 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- FILTROS DE VISTA -->
+            <div class="flex flex-wrap items-center gap-1.5 bg-[#04060a] p-1 rounded-xl border border-white/10">
+              <button onclick="setFilter('all')" id="f-all" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-blue-600 text-white">
+                Todos
+              </button>
+              <button onclick="setFilter('visible')" id="f-visible" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">
+                Sólo Visibles
+              </button>
+              <button onclick="setFilter('hidden')" id="f-hidden" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">
+                Sólo Ocultos
+              </button>
+            </div>
+
+            <!-- ACCIONES MASIVAS -->
+            <div class="flex items-center gap-2">
+              <button onclick="massToggle(true)" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                Mostrar Todo
+              </button>
+              <button onclick="massToggle(false)" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.035 10.035 0 013.682-.813c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-2.163 3.592m-2.164 2.165A9.98 9.98 0 0112 19c-1.32 0-2.58-.255-3.735-.723M3 3l18 18"></path></svg>
+                Ocultar Todo
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="servList" class="space-y-3"></div>
+      </div>
+
+      <!-- CLIENTES TAB -->
+      <div id="t-users" class="hidden">
+        <div class="mb-5">
+          <h2 class="font-black text-xl tracking-tight text-white">Cartera de Clientes</h2>
+          <p class="text-xs text-gray-400">Administración de cuentas, créditos y saldos de clientes.</p>
+        </div>
+        <div class="card p-5 mb-5">
+          <h3 class="font-bold text-xs mb-3 text-blue-400 uppercase tracking-wider">Ajuste Manual de Saldo</h3>
+          <div class="grid md:grid-cols-3 gap-2.5 mb-2.5">
+            <input id="u-name" list="usersDatalist" placeholder="Buscar usuario..." class="bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white font-mono">
+            <datalist id="usersDatalist"></datalist>
+            <input id="u-amt" type="number" placeholder="Monto" class="bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white font-mono">
+            <div class="flex gap-2">
+              <button onclick="addBal(1)" id="btnAddU" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-xs transition">Abonar</button>
+              <button onclick="addBal(-1)" id="btnSubU" class="flex-1 bg-red-600 hover:bg-red-500 py-3 rounded-xl font-bold text-xs transition">Descontar</button>
+            </div>
+          </div>
+        </div>
+        <div id="usersList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+      </div>
+
+      <!-- REVENDEDORES TAB -->
+      <div id="t-res" class="hidden">
+        <div class="mb-5">
+          <h2 class="font-black text-xl tracking-tight text-white">Red de Revendedores</h2>
+          <p class="text-xs text-gray-400">Gestión de socios de reventa y distribución.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-5 mb-5">
+          <div class="card p-5 space-y-3">
+            <h3 class="font-bold text-xs text-blue-400 uppercase tracking-wider">Crear Cuenta de Revendedor</h3>
+            <input id="r-user" placeholder="Usuario" class="w-full bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white">
+            <input id="r-pass" type="password" placeholder="Contraseña" class="w-full bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white">
+            <input id="r-bal" type="number" placeholder="Saldo inicial" class="w-full bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white font-mono">
+            <button onclick="createRes()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-bold text-xs transition">Crear Revendedor</button>
+          </div>
+          <div class="card p-5 space-y-3">
+            <h3 class="font-bold text-xs text-blue-400 uppercase tracking-wider">Ajustar Saldo a Revendedor</h3>
+            <input id="r-name" list="resDatalist" placeholder="Buscar revendedor..." class="w-full bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white font-mono">
+            <datalist id="resDatalist"></datalist>
+            <input id="r-amt" type="number" placeholder="Monto" class="w-full bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 text-white font-mono">
+            <div class="flex gap-2">
+              <button onclick="addResBal(1)" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-xs transition">Abonar</button>
+              <button onclick="addResBal(-1)" class="flex-1 bg-red-600 hover:bg-red-500 py-3 rounded-xl font-bold text-xs transition">Descontar</button>
+            </div>
+          </div>
+        </div>
+        <div id="resList" class="space-y-2.5"></div>
+      </div>
+
+      <!-- ÓRDENES TAB -->
+      <div id="t-orders" class="hidden">
+        <div class="mb-5">
+          <h2 class="font-black text-xl tracking-tight text-white">Registro de Órdenes</h2>
+          <p class="text-xs text-gray-400">Auditoría y control de pedidos en tiempo real.</p>
+        </div>
+        <div class="card p-4 mb-4 flex flex-col md:flex-row gap-2.5 justify-between items-center">
+          <input id="oSearch" oninput="renderOrders()" placeholder="Buscar por usuario, servicio o ID..." class="w-full bg-[#04060a] p-3 rounded-xl text-xs border border-white/10 flex-1 text-white">
+          <div class="flex gap-2 w-full md:w-auto">
+            <button onclick="setOrderFilter('all')" id="fo-all" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white transition">Todas</button>
+            <button onclick="setOrderFilter('completed')" id="fo-completed" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/5 text-gray-300 hover:bg-white/10 transition">Completadas</button>
+            <button onclick="setOrderFilter('pending')" id="fo-pending" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/5 text-gray-300 hover:bg-white/10 transition">Pendientes</button>
+          </div>
+        </div>
+        <div id="ordersList" class="space-y-2.5"></div>
+      </div>
+
+      <!-- CONFIGURACIÓN TAB -->
+      <div id="t-set" class="hidden space-y-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-white/10 pb-5">
+          <div>
+            <h2 class="font-black text-xl tracking-tight text-white">Configuración del Sistema</h2>
+            <p class="text-xs text-gray-400">Parámetros corporativos, canales de soporte y márgenes financieros.</p>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-5">
+          <div class="card p-5 space-y-4">
+            <h3 class="font-bold text-sm text-blue-400">Canales y Soporte</h3>
+            <div>
+              <label class="text-[11px] text-gray-400 block mb-1">WhatsApp de Soporte</label>
+              <input id="s-wa" type="text" placeholder="595983399906" class="w-full bg-[#04060a] border border-white/10 p-3 rounded-xl text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="text-[11px] text-gray-400 block mb-1">Anuncio del Sistema (Banner)</label>
+              <textarea id="s-announce" rows="3" class="w-full bg-[#04060a] border border-white/10 p-3 rounded-xl text-xs text-white resize-none"></textarea>
+            </div>
+            <button onclick="saveSettings()" class="w-full bg-white/10 hover:bg-white/15 text-white py-3 rounded-xl font-bold text-xs transition">Guardar Cambios</button>
+          </div>
+
+          <div class="card p-5 space-y-4">
+            <h3 class="font-bold text-sm text-blue-400">Márgenes y Divisas</h3>
+            <div>
+              <label class="text-[11px] text-gray-400 block mb-1">Margen Global de Ganancia (%)</label>
+              <input id="s-margin" type="number" class="w-full bg-[#04060a] border border-white/10 p-3 rounded-xl text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="text-[11px] text-gray-400 block mb-1">Tasa de Cambio (USD a Moneda Local)</label>
+              <input id="s-usd" type="number" class="w-full bg-[#04060a] border border-white/10 p-3 rounded-xl text-xs text-white font-mono">
+            </div>
+            <button onclick="saveSettings()" class="w-full bg-white/10 hover:bg-white/15 text-white py-3 rounded-xl font-bold text-xs transition">Guardar Cambios</button>
+          </div>
+
+          <div class="card p-5 lg:col-span-2 space-y-3">
+            <h3 class="font-bold text-sm text-blue-400">Sincronización de Catálogo</h3>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <button onclick="syncServices()" id="btn-sync" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-3.5 rounded-xl font-bold text-xs transition">Sincronizar Catálogo API</button>
+              <button onclick="init()" class="bg-white/5 hover:bg-white/10 text-gray-300 px-5 py-3.5 rounded-xl font-bold text-xs transition">Recargar Datos</button>
+            </div>
+            <p id="syncResultMsg" class="text-[11px] text-gray-400"></p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- NAVEGACIÓN INFERIOR (MÓVIL PROFESIONAL SIN EMOJIS) -->
+<nav id="bottomNav" style="display:none" class="fixed bottom-0 left-0 right-0 bg-[#07090e]/95 border-t border-white/10 px-2 py-1.5 flex justify-around items-center z-50 md:hidden backdrop-blur-md">
+  <button onclick="tab('dash')" id="bn-dash" class="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition text-blue-400 bg-white/5 font-bold">
+    <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+    <span class="text-[9px] tracking-wide">Inicio</span>
+  </button>
+  <button onclick="tab('serv')" id="bn-serv" class="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition text-gray-400 hover:text-white">
+    <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+    <span class="text-[9px] tracking-wide">Servicios</span>
+  </button>
+  <button onclick="tab('users')" id="bn-users" class="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition text-gray-400 hover:text-white">
+    <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+    <span class="text-[9px] tracking-wide">Clientes</span>
+  </button>
+  <button onclick="tab('orders')" id="bn-orders" class="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition text-gray-400 hover:text-white">
+    <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+    <span class="text-[9px] tracking-wide">Órdenes</span>
+  </button>
+  <button onclick="tab('set')" id="bn-set" class="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition text-gray-400 hover:text-white">
+    <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+    <span class="text-[9px] tracking-wide">Ajustes</span>
+  </button>
+</nav>
+
+<script>
+const API='https://seguidoresjavicellpy.up.railway.app/api';
+const MASTER_KEY='Romi';
+const H={'Content-Type':'application/json','x-master-key':MASTER_KEY};
+const HA={'x-master-key':MASTER_KEY};
+let allServ=[],allUsers=[],allProv=[],allRes=[],allOrders=[],CURR_SET={},servFilter='all',orderFilter='all';
+
+function formatNum(val) {
+  const num = Number(val);
+  return isNaN(num) ? '0' : num.toLocaleString('es-PY');
+}
+
+function showToast(msg, ok=true){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg;
+  t.style.background=ok?'#064e3b':'#7f1d1d';
+  t.style.borderColor=ok?'#059669':'#dc2626';
+  t.style.color='#ffffff';
+  t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'),3000);
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function unlock(){
+  if(document.getElementById('keyInput').value.trim()===MASTER_KEY){
+    sessionStorage.setItem('javi_auth','1');
+    document.getElementById('lock').style.display='none';
+    document.getElementById('main').classList.remove('hidden');
+    init();
+  } else {
+    document.getElementById('lockErr').textContent='Credenciales inválidas';
+  }
+}
+
+function logout(){sessionStorage.removeItem('javi_auth');location.reload();}
+if(sessionStorage.getItem('javi_auth')==='1'){
+  document.getElementById('lock').style.display='none';
+  document.getElementById('main').classList.remove('hidden');
+  setTimeout(init,100);
+}
+
+function styleNav(active){
+  ['dash','prov','serv','users','res','orders','set'].forEach(t=>{
+    const el = document.getElementById('b-'+t);
+    if(el) el.className='navbtn px-4 py-3 rounded-xl text-xs font-semibold text-left whitespace-nowrap '+(t===active?'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-lg':'text-gray-400 hover:bg-white/5 hover:text-white');
+  });
+  ['dash','serv','users','orders','set'].forEach(t=>{
+    const bn = document.getElementById('bn-'+t);
+    if(bn) bn.className='flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition '+(t===active?'text-blue-400 bg-white/5 font-bold':'text-gray-400 hover:text-white');
+  });
+}
+
+function tab(id){
+  ['dash','prov','serv','users','res','orders','set'].forEach(t=>{
+    const el = document.getElementById('t-'+t);
+    if(el) el.classList.add('hidden');
+  });
+  const target = document.getElementById('t-'+id);
+  if(target) target.classList.remove('hidden');
+  styleNav(id);
+}
+styleNav('dash');
+
+async function init(){
+  try{
+    await Promise.all([loadProv(),loadServ(),loadUsers(),loadRes(),loadOrders(),loadSettings()]);
+    showToast('Datos sincronizados correctamente');
+  }catch(e){
+    showToast('Error de conexión con el servidor', false);
+  }
+}
+
+async function loadProv(){
+  try{
+    allProv=await fetch(API+'/providers',{headers:HA}).then(r=>r.json());
+    document.getElementById('provList').innerHTML=allProv.map((p,i)=>`
+      <div class="card p-4 transition hover:border-white/20">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-bold text-xs flex items-center gap-2">${p.active?'🟢':'🔴'} ${esc(p.name)}</div>
+            <div class="text-[11px] text-gray-500 truncate max-w-[280px]">${esc(p.api_url||'')}</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="toggleProvDetails('${i}')" id="btn-prov-det-${i}" class="bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg text-xs font-bold transition">Editar</button>
+            <button onclick="toggleProv('${p.id || i}')" class="bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg text-xs font-bold transition">${p.active?'Pausar':'Activar'}</button>
+            <button onclick="delProv('${p.id || i}')" class="bg-red-500/10 text-red-300 border border-red-500/20 px-3 py-1.5 rounded-lg text-xs transition">Eliminar</button>
+          </div>
+        </div>
+        
+        <div id="prov-details-${i}" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2.5 bg-[#04060a] p-3 rounded-xl text-xs">
+          <div class="grid md:grid-cols-2 gap-2.5">
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-1">Nombre</label>
+              <input id="pname-${i}" type="text" value="${esc(p.name)}" class="w-full bg-[#07090e] border border-white/10 p-2 rounded-lg text-xs text-white">
+            </div>
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-1">Prioridad</label>
+              <input id="ppriority-${i}" type="number" value="${p.priority||99}" class="w-full bg-[#07090e] border border-white/10 p-2 rounded-lg text-xs text-white">
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-[10px] text-gray-400 block mb-1">Endpoint API</label>
+              <input id="purl-${i}" type="text" value="${esc(p.api_url||'')}" class="w-full bg-[#07090e] border border-white/10 p-2 rounded-lg text-xs text-white">
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-[10px] text-gray-400 block mb-1">API Key</label>
+              <input id="pkey-${i}" type="password" value="${esc(p.api_key||'')}" class="w-full bg-[#07090e] border border-white/10 p-2 rounded-lg text-xs text-white">
+            </div>
+          </div>
+          <button onclick="saveProv('${i}')" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold text-xs">Guardar Cambios</button>
+        </div>
+      </div>`).join('');
+    
+    document.getElementById('provBal').innerHTML=allProv.map(p=>`<div class="flex justify-between items-center bg-[#04060a] p-3 rounded-xl border border-white/5"><span>${p.active?'🟢':'🔴'} ${esc(p.name)}</span><b class="text-blue-400 font-mono">$${p.balance||'0.00'}</b></div>`).join('');
+  }catch(e){}
+}
+
+function toggleProvDetails(i){
+  const el=document.getElementById(`prov-details-${i}`);
+  const btn=document.getElementById(`btn-prov-det-${i}`);
+  if(el.classList.contains('hidden')){el.classList.remove('hidden');btn.textContent='Cerrar';}
+  else{el.classList.add('hidden');btn.textContent='Editar';}
+}
+
+async function saveProv(i){
+  const name=document.getElementById(`pname-${i}`).value.trim();
+  const api_url=document.getElementById(`purl-${i}`).value.trim();
+  const api_key=document.getElementById(`pkey-${i}`).value.trim();
+  const priority=Number(document.getElementById(`ppriority-${i}`).value)||99;
+  if(!name||!api_url||!api_key) return showToast('Completa todos los campos',false);
+  try{
+    allProv[i].name=name; allProv[i].api_url=api_url; allProv[i].api_key=api_key; allProv[i].priority=priority;
+    showToast('Proveedor actualizado');
+    loadProv();
+  }catch(e){showToast('Error al actualizar', false);}
+}
+
+async function addProv(){
+  const name=document.getElementById('p-name').value.trim(),api_url=document.getElementById('p-url').value.trim(),api_key=document.getElementById('p-key').value.trim(),priority=Number(document.getElementById('p-priority').value)||99;
+  if(!name||!api_url||!api_key) return showToast('Completa todos los campos',false);
+  try{
+    await fetch(API+'/providers',{method:'POST',headers:H,body:JSON.stringify({name,api_url,api_key,priority,active:true})});
+    showToast(`Proveedor agregado con éxito`);
+    loadProv();
+    document.getElementById('p-name').value=''; document.getElementById('p-url').value=''; document.getElementById('p-key').value='';
+  }catch(e){showToast('Error al agregar', false);}
+}
+
+async function toggleProv(id){try{await fetch(API+'/providers/'+id+'/toggle',{method:'POST',headers:HA});loadProv();}catch(e){}}
+async function delProv(id){if(!confirm('¿Eliminar proveedor?'))return;try{await fetch(API+'/providers/'+id,{method:'DELETE',headers:HA});loadProv();showToast('Eliminado');}catch(e){}}
+
+async function loadServ(){
+  try{
+    const j=await fetch(API+'/services-all',{headers:HA}).then(r=>r.json());
+    allServ=j.data||[];
+    document.getElementById('cServ').textContent=allServ.filter(s=>s.is_visible).length;
+    const cats=[...new Set(allServ.map(s=>s.category||'General'))].sort();
+    document.getElementById('catSelect').innerHTML='<option value="all">Todas las categorías</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    renderServ();
+  }catch(e){}
+}
+
+function setFilter(f){
+  servFilter=f;
+  ['all','visible','hidden'].forEach(ft=>{
+    const btn = document.getElementById('f-'+ft);
+    if(btn) btn.className='px-3.5 py-1.5 rounded-lg text-xs font-semibold transition '+(ft===f?'bg-blue-600 text-white font-bold':'text-gray-400 hover:text-white');
+  });
+  renderServ();
+}
+
+/* RENDERIZADO DE SERVICIOS - DISEÑO AZUL PROFESIONAL */
+function renderServ(){
+  const q=(document.getElementById('sSearch').value||'').toLowerCase();
+  const selectedCat=document.getElementById('catSelect').value;
+  let f=allServ.filter(s=>(s.name||'').toLowerCase().includes(q)||String(s.service).includes(q));
+  if(servFilter==='visible')f=f.filter(s=>s.is_visible);
+  if(servFilter==='hidden')f=f.filter(s=>!s.is_visible);
+  if(selectedCat!=='all')f=f.filter(s=>(s.category||'General')===selectedCat);
+  
+  document.getElementById('servList').innerHTML=f.slice(0,100).map(s=>{
+    const usdRate=Number(CURR_SET.usd_gs||7500);
+    const origUsd=Number(s.rate||s.original_rate||0);
+    const costGs=origUsd*usdRate;
+    const currentPriceGs=Number(s.price_gs||0);
+    const netProfit=currentPriceGs-costGs;
+
+    return `<div class="card p-4 transition hover:border-white/25">
+      <!-- CABECERA DE SERVICIO -->
+      <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-white/5">
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-black/50 text-blue-400 font-mono border border-white/5">ID ${s.service}</span>
+          <span class="text-[11px] font-medium text-gray-400 truncate max-w-[200px]">${esc(s.category||'General')}</span>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded font-semibold ${s.is_visible?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-red-500/10 text-red-400 border border-red-500/20'}">
+          ${s.is_visible?'Activo':'Oculto'}
+        </span>
+      </div>
+
+      <!-- CUERPO PRINCIPAL -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+        <input id="sname-${s.service}" type="text" value="${esc(s.name)}" class="bg-[#04060a] border border-white/10 p-2.5 rounded-xl text-xs font-semibold flex-1 text-white w-full focus:border-blue-500/50">
+        
+        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+          <div class="bg-[#04060a] px-3 py-1.5 rounded-xl border border-white/10 flex items-center">
+            <input id="sprice-${s.service}" type="number" value="${currentPriceGs}" class="bg-transparent text-emerald-400 font-bold text-xs w-20 text-right outline-none font-mono">
+          </div>
+          <button onclick="saveServ('${s.service}')" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95">Guardar</button>
+          <button onclick="toggleServDetails('${s.service}')" id="btn-det-${s.service}" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-xl text-xs font-medium transition text-gray-300">Detalles</button>
+          <button onclick="toggleServ('${s.service}')" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-xl text-xs font-medium transition text-gray-300">${s.is_visible?'Ocultar':'Mostrar'}</button>
+        </div>
+      </div>
+      
+      <!-- DETALLES EXPANDIBLES -->
+      <div id="details-${s.service}" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2.5 bg-[#04060a] p-3 rounded-xl text-xs">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          <div class="bg-[#07090e] p-2 rounded-lg border border-white/5">
+            <span class="text-gray-500 block text-[10px]">Proveedor API</span>
+            <b class="text-blue-400 font-medium">${esc(s.provider||'Principal')}</b>
+          </div>
+          <div class="bg-[#07090e] p-2 rounded-lg border border-white/5">
+            <span class="text-gray-500 block text-[10px]">Costo (USD)</span>
+            <b class="text-yellow-400 font-mono">$${origUsd.toFixed(2)}</b>
+          </div>
+          <div class="bg-[#07090e] p-2 rounded-lg border border-white/5">
+            <span class="text-gray-500 block text-[10px]">Margen Neto</span>
+            <b class="${netProfit>=0?'text-emerald-400':'text-red-400'} font-mono">${formatNum(netProfit)}</b>
+          </div>
+          <div class="bg-[#07090e] p-2 rounded-lg border border-white/5">
+            <span class="text-gray-500 block text-[10px]">Límites</span>
+            <b class="text-gray-300 font-mono">${s.min||1} / ${s.max||10000}</b>
+          </div>
+        </div>
+      </div>
+    </div>`;}).join('')||'<p class="text-gray-500 text-center py-6 text-xs">Sin resultados</p>';
+}
+
+function toggleServDetails(id){
+  const el=document.getElementById(`details-${id}`);
+  const btn=document.getElementById(`btn-det-${id}`);
+  if(el.classList.contains('hidden')){el.classList.remove('hidden');btn.textContent='Cerrar';}
+  else{el.classList.add('hidden');btn.textContent='Detalles';}
+}
+
+async function saveServ(id){
+  const newName=document.getElementById(`sname-${id}`).value.trim();
+  const newPrice=Number(document.getElementById(`sprice-${id}`).value);
+  if(!newName||isNaN(newPrice)) return showToast('Datos inválidos',false);
+  try{
+    await fetch(API+'/edit-service',{method:'POST',headers:H,body:JSON.stringify({service:id,name:newName,price_gs:newPrice})});
+    showToast('Servicio actualizado');
+    loadServ();
+  }catch(e){showToast('Error al guardar',false);}
+}
+
+async function toggleServ(id){
+  try{
+    await fetch(API+'/toggle-service',{method:'POST',headers:H,body:JSON.stringify({service:id})});
+    loadServ();
+  }catch(e){}
+}
+
+async function massToggle(show){
+  if(!confirm(`¿Deseas ${show?'mostrar':'ocultar'} todo el catálogo?`)) return;
+  try{
+    for(let s of allServ){
+      if(show?!s.is_visible:s.is_visible){
+        await fetch(API+'/toggle-service',{method:'POST',headers:H,body:JSON.stringify({service:s.service})});
+      }
+    }
+    loadServ();
+    showToast('Acción masiva aplicada');
+  }catch(e){showToast('Error en acción masiva',false);}
+}
+
+async function loadUsers(){
+  try{
+    allUsers=await fetch(API+'/users',{headers:HA}).then(r=>r.json());
+    document.getElementById('cUsers').textContent=allUsers.length;
+    document.getElementById('usersDatalist').innerHTML=allUsers.map(u=>`<option value="${esc(u.username)}">`).join('');
+    document.getElementById('usersList').innerHTML=allUsers.slice(0,100).map(u=>`<div onclick="document.getElementById('u-name').value='${esc(u.username)}'" class="card p-3.5 flex justify-between items-center text-xs cursor-pointer hover:border-blue-500/50 transition"><div><b class="font-mono">@${esc(u.username)}</b></div><span class="text-emerald-400 font-bold font-mono">${formatNum(u.balance||0)}</span></div>`).join('');
+  }catch(e){}
+}
+
+async function addBal(sign){
+  const username=document.getElementById('u-name').value.trim().toLowerCase();
+  const amt=Number(document.getElementById('u-amt').value);
+  if(!username||!amt) return showToast('Completa los campos',false);
+  try{
+    const r=await fetch(API+'/add-balance',{method:'POST',headers:H,body:JSON.stringify({username,amount:amt*sign})}).then(r=>r.json());
+    if(r.error) throw new Error(r.error);
+    showToast(`Saldo actualizado para @${esc(username)}`);
+    document.getElementById('u-amt').value='';
+    loadUsers();
+  }catch(e){showToast(e.message,false);}
+}
+
+async function loadRes(){
+  try{
+    allRes=await fetch(API+'/admin/resellers',{headers:HA}).then(r=>r.json());
+    document.getElementById('cRes').textContent=allRes.length;
+    document.getElementById('resDatalist').innerHTML=allRes.map(r=>`<option value="${esc(r.user)}">`).join('');
+    document.getElementById('resList').innerHTML=allRes.map(r=>`<div onclick="document.getElementById('r-name').value='${esc(r.user)}'" class="card p-3.5 flex justify-between items-center text-xs cursor-pointer hover:border-blue-500/50 transition"><div><b class="font-mono text-blue-400">@${esc(r.user)}</b></div><b class="text-emerald-400 font-mono">${formatNum(r.balance||0)}</b></div>`).join('');
+  }catch(e){}
+}
+
+async function createRes(){
+  const user=document.getElementById('r-user').value.trim().toLowerCase(),pass=document.getElementById('r-pass').value,balance=Number(document.getElementById('r-bal').value||0);
+  if(!user||!pass) return showToast('Completa usuario y contraseña',false);
+  try{
+    await fetch(API+'/admin/reseller-create',{method:'POST',headers:H,body:JSON.stringify({user,pass,balance})});
+    showToast(`Revendedor @${esc(user)} creado`);
+    loadRes();
+  }catch(e){showToast('Error al crear',false);}
+}
+
+async function addResBal(sign){
+  const user=document.getElementById('r-name').value.trim().toLowerCase();
+  const amt=Number(document.getElementById('r-amt').value);
+  if(!user||!amt) return showToast('Completa los campos',false);
+  try{
+    await fetch(API+'/admin/reseller-add',{method:'POST',headers:H,body:JSON.stringify({user,amount:amt*sign})});
+    showToast(`Saldo actualizado para @${esc(user)}`);
+    loadRes();
+  }catch(e){showToast(e.message,false);}
+}
+
+async function loadOrders(){
+  try{
+    allOrders=await fetch(API+'/orders',{headers:HA}).then(r=>r.json());
+    document.getElementById('cOrders').textContent=allOrders.length;
+    renderOrders();
+  }catch(e){}
+}
+
+function setOrderFilter(f){
+  orderFilter=f;
+  ['all','completed','pending'].forEach(ft=>{
+    const btn = document.getElementById('fo-'+ft);
+    if(btn) btn.className='px-3.5 py-2 rounded-xl text-xs font-bold '+(ft===f?'bg-blue-600 text-white':'bg-white/5 text-gray-300 hover:bg-white/10');
+  });
+  renderOrders();
+}
+
+function renderOrders(){
+  const q=(document.getElementById('oSearch').value||'').toLowerCase();
+  let f=allOrders.filter(o=>(o.username||'').toLowerCase().includes(q)||(o.service||'').toLowerCase().includes(q)||String(o.id).includes(q));
+  if(orderFilter==='completed')f=f.filter(o=>o.status==='completed');
+  if(orderFilter==='pending')f=f.filter(o=>o.status!=='completed');
+  document.getElementById('ordersList').innerHTML=f.slice(0,100).map(o=>`<div class="card p-3.5 flex justify-between items-center text-xs"><div class="space-y-1"><b class="text-white">Orden #${o.id} - ${esc(o.service||'')}</b><div class="text-[11px] text-gray-400">@${esc(o.username||'')} • Cant: ${o.quantity||''} • Total: <span class="font-mono text-blue-400">${formatNum(o.total_gs||0)}</span></div></div><span class="px-2.5 py-1 rounded-md font-bold text-[10px] ${o.status==='completed'?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">${esc(o.status||'pendiente')}</span></div>`).join('')||'<p class="text-gray-500 text-center py-6 text-xs">Sin órdenes</p>';
+}
+
+async function loadSettings(){
+  try{
+    const s=await fetch(API+'/settings',{headers:HA}).then(r=>r.json());
+    CURR_SET=s;
+    document.getElementById('s-wa').value=s.whatsapp||'';
+    document.getElementById('s-margin').value=s.margin||'';
+    document.getElementById('s-usd').value=s.usd_gs||'';
+    document.getElementById('s-announce').value=s.announce||'';
+  }catch(e){}
+}
+
+async function saveSettings(){
+  try{
+    const data={
+      ...CURR_SET,
+      whatsapp:document.getElementById('s-wa').value.trim(),
+      margin:Number(document.getElementById('s-margin').value)||0,
+      usd_gs:Number(document.getElementById('s-usd').value)||7500,
+      announce:document.getElementById('s-announce').value.trim()
+    };
+    await fetch(API+'/settings',{method:'POST',headers:H,body:JSON.stringify(data)});
+    showToast('Configuración guardada');
+    CURR_SET=data;
+  }catch(e){showToast('Error al guardar',false);}
+}
+
+async function syncServices(){
+  const msg=document.getElementById('syncResultMsg');
+  msg.textContent='Sincronizando con pasarelas API...';
+  try{
+    await fetch(API+'/sync-services',{method:'POST',headers:HA});
+    await loadServ();
+    msg.textContent='Sincronización completada correctamente.';
+    showToast('Servicios sincronizados');
+  }catch(e){
+    msg.textContent='Error al sincronizar con proveedor.';
+    showToast('Error de sincronización', false);
+  }
+}
+</script>
+</body>
+</html>

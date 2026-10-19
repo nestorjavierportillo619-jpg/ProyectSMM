@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Enterprise SMM • Multi-API Providers</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #060810;
+    color: #f1f5f9;
+  }
+  .card {
+    background: linear-gradient(145deg, #0e1322 0%, #080c17 100%);
+    border: 1px solid rgba(124, 58, 237, 0.18);
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+  }
+  input, select, textarea { outline: none; }
+  #toast { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .tab-btn {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glow-btn-purple {
+    background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
+    box-shadow: 0 4px 15px -3px rgba(109, 40, 217, 0.4);
+  }
+  .glow-btn-purple:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    box-shadow: 0 6px 20px -2px rgba(124, 58, 237, 0.6);
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #060810; }
+  ::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.3); border-radius: 9999px; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl font-bold hidden z-[100] shadow-2xl border border-white/10 max-w-[90%] text-center text-xs backdrop-blur-md"></div>
+
+<!-- LOCK SCREEN (CONTRASEÑA: Portillo) -->
+<div id="lock" class="min-h-screen flex items-center justify-center p-4 bg-[#060810] fixed inset-0 z-50">
+  <div class="card p-8 w-full max-w-sm text-center relative overflow-hidden border-purple-500/30">
+    <div class="w-14 h-14 bg-gradient-to-tr from-purple-600/30 to-blue-600/30 border border-purple-500/40 rounded-2xl flex items-center justify-center text-xl mx-auto mb-4 text-purple-300 shadow-lg shadow-purple-500/20">
+      ✦
+    </div>
+    <h1 class="font-black text-xl tracking-tight mb-1 text-white">SMM Control <span class="text-purple-400">Hub</span></h1>
+    <p class="text-xs text-purple-300/70 mb-6 font-medium">Gestión Avanzada de Proveedores</p>
+    <div class="space-y-3">
+      <input id="keyInput" type="password" placeholder="Contraseña de acceso" class="w-full bg-[#03050a] p-3.5 rounded-xl text-xs border border-purple-500/20 text-center text-white focus:border-purple-500 transition" onkeydown="if(event.key==='Enter')unlock()">
+      <button onclick="unlock()" class="w-full glow-btn-purple text-white py-3.5 rounded-xl font-black text-xs shadow-lg active:scale-[0.99] transition">Desbloquear Panel</button>
+    </div>
+    <p id="lockErr" class="text-pink-400 text-xs mt-3 font-semibold"></p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main" class="hidden min-h-screen flex flex-col">
+  
+  <!-- HEADER CORPORATIVO SMM -->
+  <header class="p-4 px-6 flex justify-between items-center bg-[#090d1a]/95 backdrop-blur-md sticky top-0 z-40 border-b border-purple-500/20">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-gradient-to-tr from-purple-600/20 to-blue-600/20 border border-purple-500/30 rounded-xl flex items-center justify-center text-purple-400 font-bold text-lg shadow-md shadow-purple-500/10">
+        ✦
+      </div>
+      <div>
+        <div class="font-black text-sm text-white tracking-wide">Multi-API <span class="text-purple-400">Providers Engine</span></div>
+        <div class="text-[10px] text-cyan-400 font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span> Sistema SMM Activo
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto space-y-6">
+
+    <!-- BARRA DE PESTAÑAS PRINCIPALES -->
+    <div class="flex flex-wrap items-center gap-2 bg-[#090d1a] p-1.5 rounded-2xl border border-purple-500/20 shadow-xl">
+      <button onclick="switchTab('prov')" id="tabBtn-prov" class="tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-xl text-xs font-bold text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30">
+        Proveedores API
+      </button>
+      <button onclick="switchTab('serv')" id="tabBtn-serv" class="tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-xl text-xs font-bold text-center text-gray-400 hover:text-white hover:bg-white/5">
+        Servicios y Catálogo
+      </button>
+      <button onclick="switchTab('set')" id="tabBtn-set" class="tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-xl text-xs font-bold text-center text-gray-400 hover:text-white hover:bg-white/5">
+        Configuración Global
+      </button>
+    </div>
+
+    <!-- PESTAÑA 1: PROVEEDORES API -->
+    <div id="tabContent-prov" class="space-y-4">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+        <div>
+          <h2 class="font-black text-xl tracking-tight text-white">Infraestructura de Proveedores API</h2>
+          <p class="text-xs text-gray-400">Administra múltiples pasarelas SMM, verifica saldos en tiempo real y establece prioridades.</p>
+        </div>
+        <button onclick="syncAllProviders()" class="glow-btn-purple text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-lg">Sincronizar Todas las APIs</button>
+      </div>
+
+      <div class="card p-5 space-y-3">
+        <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider">Añadir Nueva API de Proveedor</h3>
+        <div class="grid md:grid-cols-2 gap-3">
+          <input id="p-name" placeholder="Nombre Comercial (ej. Proveedor Alpha)" class="bg-[#03050a] p-3 rounded-xl text-xs border border-white/10 text-white focus:border-purple-500/50">
+          <input id="p-priority" type="number" placeholder="Prioridad de Ruta (1 = Principal)" class="bg-[#03050a] p-3 rounded-xl text-xs border border-white/10 text-white font-mono focus:border-purple-500/50">
+          <input id="p-url" placeholder="https://proveedorapi.com/api/v2" class="bg-[#03050a] p-3 rounded-xl text-xs border border-white/10 md:col-span-2 text-white font-mono focus:border-purple-500/50">
+          <input id="p-key" type="password" placeholder="API Key de Autenticación" class="bg-[#03050a] p-3 rounded-xl text-xs border border-white/10 md:col-span-2 text-white font-mono focus:border-purple-500/50">
+        </div>
+        <button id="btn-add-prov" onclick="addProv()" class="w-full glow-btn-purple text-white py-3 rounded-xl font-bold text-xs shadow transition">Registrar Proveedor API</button>
+      </div>
+
+      <div id="provList" class="grid md:grid-cols-2 gap-3"></div>
+    </div>
+
+    <!-- PESTAÑA 2: SERVICIOS Y CATÁLOGO -->
+    <div id="tabContent-serv" class="hidden space-y-4">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+        <div>
+          <h2 class="font-black text-xl tracking-tight text-white">Catálogo Unificado de Servicios</h2>
+          <p class="text-xs text-gray-400">Edita precios, tipo de requerimiento y cantidad base (solo si el servicio se cotiza por lotes tipo 1000).</p>
+        </div>
+      </div>
+
+      <div class="card p-4 space-y-3">
+        <div class="flex flex-wrap gap-2.5 items-center justify-between">
+          <div class="relative flex-1 min-w-[220px]">
+            <input id="sSearch" oninput="renderServ()" placeholder="Buscar servicio por nombre o ID..." class="w-full bg-[#03050a] p-3 rounded-xl text-xs border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50">
+          </div>
+          <select id="catSelect" onchange="renderServ()" class="bg-[#03050a] p-3 rounded-xl text-xs border border-white/10 text-gray-300 min-w-[200px]">
+            <option value="all">Todas las categorías</option>
+          </select>
+        </div>
+
+        <div class="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-1.5 bg-[#03050a] p-1 rounded-xl border border-white/10">
+            <button onclick="setFilter('all')" id="f-all" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-purple-600 text-white">Todos</button>
+            <button onclick="setFilter('visible')" id="f-visible" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">Sólo Visibles</button>
+            <button onclick="setFilter('hidden')" id="f-hidden" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">Sólo Ocultos</button>
+          </div>
+          <!-- BOTONES DE ACCIONES MASIVAS FUNCIONALES -->
+          <div class="flex items-center gap-2">
+            <button onclick="massToggle(true)" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition">Mostrar Todo</button>
+            <button onclick="massToggle(false)" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-pink-500/10 text-pink-400 border border-pink-500/20 hover:bg-pink-500/20 transition">Ocultar Todo</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="servList" class="space-y-3"></div>
+    </div>
+
+    <!-- PESTAÑA 3: CONFIGURACIÓN GLOBAL -->
+    <div id="tabContent-set" class="hidden space-y-4">
+      <div>
+        <h2 class="font-black text-xl tracking-tight text-white">Ajustes Financieros y Conexiones</h2>
+        <p class="text-xs text-gray-400">Configura la tasa de cambio local y los márgenes de ganancia automáticos.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card p-5 space-y-4">
+          <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider">Parámetros Monetarios</h3>
+          <div>
+            <label class="text-[11px] text-gray-400 block mb-1">Tasa de Cambio (1 USD a Moneda Local)</label>
+            <input id="cfg-usd" type="number" placeholder="Ej: 7500" class="w-full bg-[#03050a] border border-white/10 p-3 rounded-xl text-xs text-white font-mono focus:border-purple-500/50">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-400 block mb-1">Margen Global de Ganancia (%)</label>
+            <input id="cfg-margin" type="number" placeholder="Ej: 30" class="w-full bg-[#03050a] border border-white/10 p-3 rounded-xl text-xs text-white font-mono focus:border-purple-500/50">
+          </div>
+          <button onclick="saveGlobalSettings()" class="w-full glow-btn-purple text-white py-3 rounded-xl font-bold text-xs transition">Guardar Parámetros</button>
+        </div>
+
+        <div class="card p-5 space-y-3 flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider mb-2">Mantenimiento de Red</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">
+              La sincronización fuerza la actualización de saldos con cada proveedor API conectado y recalcula los precios de costo según la tasa cargada.
+            </p>
+          </div>
+          <button onclick="syncAllProviders()" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 py-3 rounded-xl font-bold text-xs transition">
+            Recargar Saldos y Conexiones
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const API = 'https://seguidoresjavicellpy.up.railway.app/api';
+const MASTER_KEY = 'Romi';
+const ACCESS_PASS = 'Portillo';
+const H = {'Content-Type': 'application/json', 'x-master-key': MASTER_KEY};
+const HA = {'x-master-key': MASTER_KEY};
+
+let allServ = [], allProv = [], CURR_SET = {}, servFilter = 'all';
+
+function unlock() {
+  const val = document.getElementById('keyInput').value.trim();
+  if (val === ACCESS_PASS) {
+    sessionStorage.setItem('prov_auth', '1');
+    document.getElementById('lock').style.display = 'none';
+    document.getElementById('main').classList.remove('hidden');
+    init();
+  } else {
+    document.getElementById('lockErr').textContent = 'Contraseña incorrecta';
+  }
+}
+
+if (sessionStorage.getItem('prov_auth') === '1') {
+  document.getElementById('lock').style.display = 'none';
+  document.getElementById('main').classList.remove('hidden');
+  setTimeout(init, 100);
+}
+
+function switchTab(tab) {
+  ['prov', 'serv', 'set'].forEach(t => {
+    const btn = document.getElementById('tabBtn-' + t);
+    const content = document.getElementById('tabContent-' + t);
+    if (content) content.classList.add('hidden');
+    if (btn) btn.className = 'tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-xl text-xs font-bold text-center text-gray-400 hover:text-white hover:bg-white/5';
+  });
+
+  const activeBtn = document.getElementById('tabBtn-' + tab);
+  const activeContent = document.getElementById('tabContent-' + tab);
+  if (activeContent) activeContent.classList.remove('hidden');
+  if (activeBtn) activeBtn.className = 'tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-xl text-xs font-bold text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30';
+}
+
+function formatNum(val) {
+  const num = Number(val);
+  return isNaN(num) ? '0' : num.toLocaleString('es-PY');
+}
+
+function showToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.style.background = ok ? '#064e3b' : '#831843';
+  t.style.borderColor = ok ? '#059669' : '#db2777';
+  t.style.color = '#ffffff';
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function init() {
+  try {
+    await Promise.all([loadSettings(), loadProv(), loadServ()]);
+    showToast('Módulo SMM de proveedores sincronizado');
+  } catch (e) {
+    showToast('Error al conectar con el servidor central', false);
+  }
+}
+
+async function loadSettings() {
+  try {
+    CURR_SET = await fetch(API + '/settings', {headers: HA}).then(r => r.json());
+    if (document.getElementById('cfg-usd')) document.getElementById('cfg-usd').value = CURR_SET.usd_gs || 7500;
+    if (document.getElementById('cfg-margin')) document.getElementById('cfg-margin').value = CURR_SET.margin || 0;
+  } catch (e) { CURR_SET = {usd_gs: 7500, margin: 0}; }
+}
+
+async function saveGlobalSettings() {
+  try {
+    const usd = Number(document.getElementById('cfg-usd').value) || 7500;
+    const margin = Number(document.getElementById('cfg-margin').value) || 0;
+    const data = {...CURR_SET, usd_gs: usd, margin: margin};
+    await fetch(API + '/settings', {method: 'POST', headers: H, body: JSON.stringify(data)});
+    CURR_SET = data;
+    showToast('Configuración global guardada');
+    loadServ();
+  } catch (e) { showToast('Error al guardar configuración', false); }
+}
+
+async function loadProv() {
+  try {
+    allProv = await fetch(API + '/providers', {headers: HA}).then(r => r.json());
+    document.getElementById('provList').innerHTML = allProv.map((p, i) => `
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full ${p.active ? 'bg-cyan-400 animate-pulse' : 'bg-pink-500'}"></span>
+            <span class="font-bold text-xs text-white">${esc(p.name)}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-mono">Prioridad: ${p.priority || 1}</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-gray-400 block uppercase font-bold">Saldo API</span>
+            <span class="text-sm font-black text-emerald-400 font-mono">$${p.balance || '0.00'}</span>
+          </div>
+        </div>
+        
+        <div class="text-[11px] text-gray-400 truncate font-mono bg-[#03050a] p-2 rounded-lg border border-white/5">
+          ${esc(p.api_url || '')}
+        </div>
+
+        <div class="flex justify-end gap-2 pt-1 border-t border-white/5">
+          <button onclick="toggleProv('${p.id || i}')" class="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-xs font-semibold transition text-gray-300">${p.active ? 'Pausar API' : 'Activar API'}</button>
+          <button onclick="delProv('${p.id || i}')" class="bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/20 px-3 py-1.5 rounded-lg text-xs transition">Eliminar</button>
+        </div>
+      </div>
+    `).join('') || '<p class="text-gray-500 text-xs text-center py-4 md:col-span-2">No hay proveedores registrados.</p>';
+  } catch (e) { showToast('Error al cargar proveedores', false); }
+}
+
+async function addProv() {
+  const name = document.getElementById('p-name').value.trim();
+  const api_url = document.getElementById('p-url').value.trim();
+  const api_key = document.getElementById('p-key').value.trim();
+  const priority = Number(document.getElementById('p-priority').value) || 1;
+  if (!name || !api_url || !api_key) return showToast('Completa todos los campos obligatorios', false);
+  
+  try {
+    await fetch(API + '/providers', {method: 'POST', headers: H, body: JSON.stringify({name, api_url, api_key, priority, active: true})});
+    showToast(`Proveedor ${esc(name)} registrado`);
+    loadProv();
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-url').value = '';
+    document.getElementById('p-key').value = '';
+  } catch (e) { showToast('Error al registrar proveedor', false); }
+}
+
+async function toggleProv(id) {
+  try {
+    await fetch(API + '/providers/' + id + '/toggle', {method: 'POST', headers: HA});
+    loadProv();
+    showToast('Estado de API actualizado');
+  } catch (e) { showToast('Error al cambiar estado', false); }
+}
+
+async function delProv(id) {
+  if (!confirm('¿Estás seguro de eliminar este proveedor API?')) return;
+  try {
+    await fetch(API + '/providers/' + id, {method: 'DELETE', headers: HA});
+    loadProv();
+    showToast('Proveedor eliminado');
+  } catch (e) { showToast('Error al eliminar', false); }
+}
+
+async function syncAllProviders() {
+  showToast('Sincronizando catálogos y saldos...');
+  try {
+    await fetch(API + '/sync-services', {method: 'POST', headers: HA});
+    await loadServ();
+    await loadProv();
+    showToast('Sincronización multi-API completada con éxito');
+  } catch (e) {
+    showToast('Error de sincronización', false);
+  }
+}
+
+async function loadServ() {
+  try {
+    const res = await fetch(API + '/services-all', {headers: HA}).then(r => r.json());
+    allServ = res.data || [];
+    const cats = [...new Set(allServ.map(s => s.category || 'General'))].sort();
+    document.getElementById('catSelect').innerHTML = '<option value="all">Todas las categorías</option>' + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    renderServ();
+  } catch (e) { showToast('Error al cargar servicios', false); }
+}
+
+function setFilter(f) {
+  servFilter = f;
+  ['all', 'visible', 'hidden'].forEach(ft => {
+    const btn = document.getElementById('f-' + ft);
+    if (btn) btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ' + (ft === f ? 'bg-purple-600 text-white font-bold' : 'text-gray-400 hover:text-white');
+  });
+  renderServ();
+}
+
+function renderServ() {
+  const q = (document.getElementById('sSearch').value || '').toLowerCase();
+  const selectedCat = document.getElementById('catSelect').value;
+  let f = allServ.filter(s => (s.name || '').toLowerCase().includes(q) || String(s.service).includes(q));
+  
+  if (servFilter === 'visible') f = f.filter(s => s.is_visible);
+  if (servFilter === 'hidden') f = f.filter(s => !s.is_visible);
+  if (selectedCat !== 'all') f = f.filter(s => (s.category || 'General') === selectedCat);
+  
+  document.getElementById('servList').innerHTML = f.slice(0, 100).map(s => {
+    const usdRate = Number(CURR_SET.usd_gs || 7500);
+    const origUsdPer1k = Number(s.rate || s.original_rate || 0);
+    
+    const isPerUnit = s.price_type === 'per_unit' || (s.base_quantity !== undefined && Number(s.base_quantity) === 1);
+    const baseQuantity = isPerUnit ? 1 : Number(s.base_quantity || 1000);
+    
+    let costUsdForBase = 0;
+    if (isPerUnit) {
+      costUsdForBase = origUsdPer1k;
+    } else {
+      costUsdForBase = (origUsdPer1k / 1000) * baseQuantity;
+    }
+    
+    const costGsForBase = costUsdForBase * usdRate;
+    const currentPriceGs = Number(s.price_gs || 0);
+    const netProfit = currentPriceGs - costGsForBase;
+    const inputType = s.input_type || 'link';
+
+    return `
+      <div class="card p-4 transition hover:border-purple-500/30 space-y-3">
+        <!-- Cabecera -->
+        <div class="flex items-center justify-between gap-2 pb-2 border-b border-white/5">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-black/60 text-purple-300 font-mono border border-purple-500/20">ID ${s.service}</span>
+            <span class="text-[11px] font-medium text-gray-400 truncate max-w-[220px]">${esc(s.category || 'General')}</span>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded font-semibold ${s.is_visible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-pink-500/10 text-pink-400 border border-pink-500/20'}">
+            ${s.is_visible ? 'Visible' : 'Oculto'}
+          </span>
+        </div>
+
+        <!-- Fila de Edición Principal -->
+        <div class="grid md:grid-cols-12 gap-3 items-center">
+          <div class="${isPerUnit ? 'md:col-span-7' : 'md:col-span-5'}">
+            <label class="text-[10px] text-gray-400 block mb-1">Nombre del Servicio</label>
+            <input id="sname-${s.service}" type="text" value="${esc(s.name)}" class="w-full bg-[#03050a] border border-white/10 p-2.5 rounded-xl text-xs font-semibold text-white focus:border-purple-500/50">
+          </div>
+
+          ${!isPerUnit ? `
+          <div class="md:col-span-2">
+            <label class="text-[10px] text-gray-400 block mb-1">Paquete (Cant.)</label>
+            <input id="sbase-${s.service}" type="number" value="${baseQuantity}" placeholder="1000" class="w-full bg-[#03050a] border border-white/10 p-2.5 rounded-xl text-xs font-bold text-cyan-400 font-mono focus:border-purple-500/50">
+          </div>
+          ` : `<input id="sbase-${s.service}" type="hidden" value="1">`}
+
+          <div class="${isPerUnit ? 'md:col-span-2' : 'md:col-span-2'}">
+            <label class="text-[10px] text-gray-400 block mb-1">Precio Paquete</label>
+            <input id="sprice-${s.service}" type="number" value="${currentPriceGs}" class="w-full bg-[#03050a] border border-white/10 p-2.5 rounded-xl text-xs font-bold text-emerald-400 font-mono focus:border-purple-500/50">
+          </div>
+
+          <div class="${isPerUnit ? 'md:col-span-3' : 'md:col-span-3'}">
+            <label class="text-[10px] text-gray-400 block mb-1">Tipo de Requerimiento</label>
+            <select id="sinput-${s.service}" class="w-full bg-[#03050a] border border-white/10 p-2.5 rounded-xl text-xs text-gray-200 font-medium">
+              <option value="link" ${inputType === 'link' ? 'selected' : ''}>Enlace / URL</option>
+              <option value="email" ${inputType === 'email' ? 'selected' : ''}>Correo Electrónico</option>
+              <option value="username" ${inputType === 'username' ? 'selected' : ''}>Nombre de Usuario</option>
+              <option value="custom" ${inputType === 'custom' ? 'selected' : ''}>Texto Personalizado</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila de Límites y Acciones -->
+        <div class="grid md:grid-cols-12 gap-3 items-center pt-2 border-t border-white/5">
+          <div class="md:col-span-3 grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[9px] text-gray-500 block">Mín.</label>
+              <input id="smin-${s.service}" type="number" value="${s.min || 1}" class="w-full bg-[#03050a] border border-white/10 p-2 rounded-lg text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="text-[9px] text-gray-500 block">Máx.</label>
+              <input id="smax-${s.service}" type="number" value="${s.max || 10000}" class="w-full bg-[#03050a] border border-white/10 p-2 rounded-lg text-xs text-white font-mono">
+            </div>
+          </div>
+
+          <div class="md:col-span-5 flex items-center gap-3 text-[11px] text-gray-400">
+            <div>Proveedor: <b class="text-purple-300">${esc(s.provider || 'Principal')}</b></div>
+            <div>Costo: <b class="text-amber-300 font-mono">$${costUsdForBase.toFixed(3)} USD</b></div>
+            <div>Margen: <b class="${netProfit >= 0 ? 'text-emerald-400' : 'text-pink-400'} font-mono">${formatNum(netProfit)}</b></div>
+          </div>
+
+          <div class="md:col-span-4 flex items-center justify-end gap-2">
+            <button onclick="saveServ('${s.service}')" class="glow-btn-purple text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">Guardar</button>
+            <button onclick="toggleServ('${s.service}')" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-xl text-xs font-medium transition text-gray-300">${s.is_visible ? 'Ocultar' : 'Mostrar'}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('') || '<p class="text-gray-500 text-center py-6 text-xs">No se encontraron servicios.</p>';
+}
+
+async function saveServ(id) {
+  const newName = document.getElementById(`sname-${id}`).value.trim();
+  const newPrice = Number(document.getElementById(`sprice-${id}`).value);
+  const baseEl = document.getElementById(`sbase-${id}`);
+  const newBaseQty = baseEl ? (Number(baseEl.value) || 1000) : 1;
+  const newInputType = document.getElementById(`sinput-${id}`).value;
+  const newMin = Number(document.getElementById(`smin-${id}`).value) || 1;
+  const newMax = Number(document.getElementById(`smax-${id}`).value) || 10000;
+
+  if (!newName || isNaN(newPrice) || isNaN(newBaseQty)) return showToast('Verifica los datos ingresados', false);
+
+  try {
+    const r = await fetch(API + '/edit-service', {
+      method: 'POST', 
+      headers: H, 
+      body: JSON.stringify({
+        service: id, 
+        name: newName, 
+        price_gs: newPrice, 
+        base_quantity: newBaseQty,
+        input_type: newInputType, 
+        min: newMin, 
+        max: newMax
+      })
+    }).then(r => r.json());
+
+    if (r.error) throw new Error(r.error);
+    showToast(`Servicio ID ${id} actualizado correctamente`);
+    loadServ();
+  } catch (e) { showToast(e.message || 'Error al guardar cambios', false); }
+}
+
+async function toggleServ(id) {
+  try {
+    await fetch(API + '/toggle-service', {method: 'POST', headers: H, body: JSON.stringify({service: id})});
+    loadServ();
+    showToast('Visibilidad actualizada');
+  } catch (e) { showToast('Error al cambiar visibilidad', false); }
+}
+
+/* FUNCIÓN DE ACCIÓN MASIVA PARA MOSTRAR / OCULTAR TODO */
+async function massToggle(show) {
+  if (!confirm(`¿Estás seguro de ${show ? 'mostrar' : 'ocultar'} todos los servicios del catálogo?`)) return;
+  try {
+    for (let s of allServ) {
+      if (show ? !s.is_visible : s.is_visible) {
+        await fetch(API + '/toggle-service', {method: 'POST', headers: H, body: JSON.stringify({service: s.service})});
+      }
+    }
+    loadServ();
+    showToast('Acción masiva aplicada con éxito');
+  } catch (e) { showToast('Error en la acción masiva', false); }
+}
+</script>
+</body>
+</html>
