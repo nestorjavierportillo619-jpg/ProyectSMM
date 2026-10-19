@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="google-site-verification" content="a80a7451bd26da76" />
+<title>RJ SEGUIDORES PY ✨ | Panel SMM Exclusivo en Paraguay</title>
+<meta name="description" content="Panel SMM profesional y automatizado en Paraguay. Crecimiento estratégico para Instagram, TikTok, Facebook, YouTube, Telegram y más. Alta calidad garantizada.">
+<link rel="canonical" href="https://seguidoresjavicellpy.netlify.app/">
+<meta property="og:title" content="RJ SEGUIDORES PY - Panel SMM Exclusivo">
+<meta property="og:description" content="Servicios SMM automatizados y profesionales en Paraguay.">
+<meta property="og:url" content="https://seguidoresjavicellpy.netlify.app/">
+<meta property="og:type" content="website">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{colors:{darkBg:'#0b090e',cardBg:'#141019',accentViolet:'#a855f7',accentIndigo:'#6366f1'}}}}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<style>
+body{background:#0b090e;font-family:Inter,system-ui,sans-serif;color:#f3f4f6;overflow-x:hidden}
+.card{background:linear-gradient(145deg, #141019 0%, #0e0a12 100%);border:1px solid rgba(168,85,247,0.18);border-radius:1.25rem;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);box-shadow:0 4px 20px -2px rgba(0,0,0,0.5)}
+.card:hover{border-color:rgba(168,85,247,0.45);transform:translateY(-3px);box-shadow:0 10px 25px -5px rgba(168,85,247,0.15)}
+.modal-bg{background:rgba(5,3,8,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.badge{font-size:10px;padding:3px 10px;border-radius:99px;font-weight:700;letter-spacing:0.025em}
+.skeleton{animation:p 1.4s infinite;background:linear-gradient(90deg, #141019 0%, #1c1424 50%, #141019 100%);background-size:200% 100%;border-radius:1.25rem;min-height:130px}
+@keyframes p{0%{background-position:200% 0}100%{background-position:-200% 0}}
+#announce:empty{display:none}
+#toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;gap:10px;width:92%;max-width:380px}
+.toast{background:rgba(20, 16, 25, 0.95);border:1px solid rgba(168,85,247,0.3);backdrop-filter:blur(10px);padding:14px 18px;border-radius:18px;display:flex;align-items:center;gap:12px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.6);animation:su .35s cubic-bezier(0.16, 1, 0.3, 1)}
+@keyframes su{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#0b090e}
+::-webkit-scrollbar-thumb{background:#2a2035;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#3d2f4d}
+</style>
+</head>
+<body class="min-h-screen pb-12">
+<div id="toast-container"></div>
+<div id="announce" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-center text-xs font-bold py-2 px-4 shadow-lg tracking-wide"></div>
+
+<header class="p-3.5 md:p-4 flex justify-between items-center max-w-6xl mx-auto sticky top-0 bg-[#0b090e]/85 backdrop-blur-xl z-40 border-b border-white/5">
+<div class="flex items-center gap-2.5 cursor-pointer group" onclick="showTab('catalogo')">
+<div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-lg shadow-md shadow-purple-500/20 group-hover:scale-105 transition">🦊</div>
+<div class="font-black text-xs md:text-sm tracking-wider">RJ SEGUIDORES<span class="text-purple-400 font-medium">PY</span></div>
+</div>
+<div class="flex gap-2 items-center">
+<span id="userBal" class="hidden text-[11px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2.5 py-1 rounded-full font-extrabold shadow-inner leading-none">₲0</span>
+<button id="btnLogin" onclick="openProfile()" class="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:opacity-95 px-3.5 py-1.5 rounded-lg text-[11px] font-bold shadow-md shadow-purple-500/20 transition active:scale-95 leading-tight">Iniciar Sesión</button>
+</div>
+</header>
+
+<!-- Banner Principal Exclusivo SMM -->
+<div class="max-w-6xl mx-auto px-4 mt-4">
+<div class="rounded-3xl p-5 md:p-7 text-center bg-gradient-to-br from-indigo-950/30 via-[#141019] to-purple-950/20 border border-purple-500/20 shadow-2xl relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -left-12 -bottom-12 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<span class="bg-purple-500/10 text-purple-300 border border-purple-500/20 text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2.5 inline-block shadow-inner">Panel SMM Automatizado</span>
+<h1 class="text-xl md:text-3xl font-black mb-2.5 tracking-tight bg-gradient-to-r from-white via-indigo-100 to-purple-200 bg-clip-text text-transparent">Impulsa tu Presencia Digital ✨</h1>
+<p class="text-gray-300 text-xs md:text-sm mb-4 max-w-lg mx-auto font-light leading-relaxed">Servicios SMM automatizados con la más alta calidad en Paraguay. Diseñado para creadores, marcas, empresas y profesionales de las redes sociales.</p>
+<div class="flex justify-center gap-2.5 flex-wrap">
+<button onclick="document.getElementById('list').scrollIntoView({behavior:'smooth'})" class="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:opacity-95 px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-purple-500/25 transition active:scale-95">Explorar Catálogo SMM </button>
+<button onclick="openModalFAQ()" class="bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2.5 rounded-xl font-bold text-xs transition active:scale-95">❓ Guía y FAQ</button>
+</div>
+</div>
+</div>
+
+<div class="max-w-6xl mx-auto p-4">
+<div class="card p-3.5 flex flex-col md:flex-row justify-between items-center gap-3 bg-gradient-to-r from-[#141019] to-[#1a1222]">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-base shadow-inner border border-emerald-500/20">💎</div>
+<div>
+<h3 class="font-bold text-xs text-purple-100">¿Cómo realizar recargas de saldo?</h3>
+<p class="text-xs text-gray-400 mt-0.5">1. Iniciá sesión con Google. 2. Copiá tu usuario. 3. <a id="wa-link" href="#" target="_blank" class="text-purple-300 underline font-semibold hover:text-purple-200 transition">Solicitá recarga vía WhatsApp instantánea</a></p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 flex gap-2.5 mb-4 overflow-x-auto pb-1">
+<button onclick="showTab('catalogo')" id="tabBtnCat" class="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md shadow-purple-500/20 transition" style="background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)">🌸 Catálogo SMM</button>
+<button onclick="showTab('pedidos')" id="tabBtnPed" class="bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-xs font-medium text-gray-300 transition">🛍️ Mis Pedidos</button>
+</div>
+
+<section id="tab-catalogo" class="max-w-6xl mx-auto px-4 pb-8">
+<div class="relative mb-4">
+<input id="search" placeholder="🔍 Buscar red social o servicio..." class="w-full bg-[#141019] p-3.5 pl-11 rounded-2xl text-xs border border-purple-500/20 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 outline-none transition shadow-inner">
+<span class="absolute left-4 top-3.5 text-gray-400 text-xs">🔍</span>
+</div>
+<div id="platGrid" class="flex md:grid md:grid-cols-10 gap-2 my-3 overflow-x-auto pb-2"></div>
+<div id="loading" class="grid md:grid-cols-2 gap-4 mt-4"><div class="skeleton"></div><div class="skeleton"></div></div>
+<div id="list" class="grid md:grid-cols-2 gap-3.5"></div>
+<div id="errBox" class="hidden text-center py-12 card p-8 my-4">
+<p class="text-purple-300 mb-3 text-xs font-medium">❌ No se pudo conectar con el servidor. Reintentando...</p>
+<button onclick="init()" class="bg-purple-600 px-5 py-2 rounded-xl font-bold text-xs shadow-md transition hover:bg-purple-500">Reintentar conexión</button>
+</div>
+</section>
+
+<section id="tab-pedidos" class="max-w-6xl mx-auto px-4 hidden pb-12">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-black text-base tracking-wide">🛍️ Historial de Pedidos</h2>
+<button onclick="renderOrders()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3.5 py-1.5 rounded-xl transition active:scale-95">🔄 Actualizar</button>
+</div>
+<div id="ordersList" class="space-y-3"></div>
+</section>
+
+<footer class="max-w-6xl mx-auto px-4 border-t border-white/5 pt-8 pb-12 text-xs text-gray-500 text-center tracking-wide">© 2026 RJ SEGUIDORES PY ✨ - Elegancia y rendimiento digital</footer>
+
+<!-- MODAL MI CUENTA -->
+<div id="profileModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4" onclick="if(event.target===this)closeProfile()">
+<div class="card p-5 md:p-6 w-full max-w-sm rounded-3xl shadow-2xl border-purple-500/25 bg-gradient-to-b from-[#16101f] to-[#0e0a14] relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+<div class="flex justify-between items-center mb-5 pb-3 border-b border-white/10">
+  <div class="flex items-center gap-2">
+    <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center text-xs shadow-md text-white font-bold">💎</div>
+    <h3 class="font-black text-xs text-purple-50 tracking-wide">Panel de Usuario</h3>
+  </div>
+  <button onclick="closeProfile()" class="bg-white/5 hover:bg-white/15 w-7 h-7 rounded-full flex items-center justify-center text-xs text-gray-300 transition active:scale-90">✕</button>
+</div>
+
+<div id="loginBox">
+  <div class="text-center py-4">
+    <div class="w-14 h-14 bg-gradient-to-tr from-indigo-500/20 via-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl shadow-inner animate-pulse">🦊</div>
+    <h4 class="font-bold text-white text-xs mb-1">Acceso Exclusivo</h4>
+    <p class="text-xs text-gray-400 font-light mb-5 leading-relaxed">Iniciá sesión para sincronizar tus pedidos y administrar tu saldo disponible.</p>
+    <button onclick="login()" class="w-full bg-white text-black hover:bg-gray-100 py-3 px-4 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2 active:scale-98">
+      <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+      Continuar con Google
+    </button>
+  </div>
+</div>
+
+<div id="userBox" class="hidden space-y-3">
+  <div class="flex items-center gap-3 bg-black/40 p-3 rounded-2xl border border-white/5 shadow-inner">
+    <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center font-bold text-white shadow-md text-xs">✨</div>
+    <div class="flex-1 overflow-hidden">
+      <div class="flex items-center gap-1 mb-0.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">Verificado</span>
+      </div>
+      <p id="myUsername" class="font-mono text-purple-200 font-extrabold text-xs truncate">-</p>
+    </div>
+    <button onclick="copiarUsuario()" class="bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 shadow-sm">
+      📋 Copiar
+    </button>
+  </div>
+
+  <div class="grid grid-cols-2 gap-2.5">
+    <div class="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-center shadow-inner">
+      <p class="text-[9px] text-gray-400 uppercase font-bold tracking-wider mb-0.5">Saldo</p>
+      <p id="myBalance" class="font-black text-emerald-400 text-sm">₲0</p>
+    </div>
+    <div class="bg-purple-500/10 border border-purple-500/20 p-2.5 rounded-xl text-center shadow-inner">
+      <p class="text-[9px] text-gray-400 uppercase font-bold tracking-wider mb-0.5">Pedidos</p>
+      <p id="myOrdersCount" class="font-black text-purple-400 text-sm">0</p>
+    </div>
+  </div>
+
+  <button id="btnRecharge" class="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:opacity-95 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-600/25 transition flex items-center justify-center gap-2 active:scale-98 tracking-wide">
+    💬 Recargar Saldo vía WhatsApp
+  </button>
+  
+  <button onclick="logout()" class="w-full bg-white/5 hover:bg-purple-500/10 hover:text-purple-300 border border-white/5 py-2 rounded-xl text-xs text-gray-400 font-semibold transition active:scale-98">
+    Cerrar sesión
+  </button>
+</div>
+</div>
+</div>
+
+<div id="buyModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4" onclick="if(event.target===this)closeModal()">
+<div class="card p-6 md:p-7 w-full max-w-md rounded-[2rem] shadow-2xl border-purple-500/25 bg-[#120d17]">
+<div class="flex justify-between items-center mb-4"><h3 id="mTitle" class="font-bold text-xs text-purple-100"></h3><button onclick="closeModal()" class="bg-white/10 hover:bg-white/20 w-7 h-7 rounded-full flex items-center justify-center text-xs transition">✕</button></div>
+<div id="mMeta" class="text-xs text-gray-400 mb-4 bg-white/5 p-3 rounded-xl border border-white/5"></div>
+<label id="lblInput" class="text-xs font-bold text-purple-300 block mb-1">🔗 Link o Enlace</label>
+<input id="mLink" placeholder="https://..." class="w-full bg-black/50 p-3.5 rounded-xl text-xs mb-3.5 border border-purple-500/20 focus:border-purple-400 outline-none transition">
+<label class="text-xs font-bold text-purple-300 block mb-1">🔢 Cantidad</label>
+<input id="mQty" type="number" class="w-full bg-black/50 p-3.5 rounded-xl text-xs mb-4 border border-purple-500/20 focus:border-purple-400 outline-none transition">
+<div id="mPrice" class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-center p-3.5 rounded-xl mb-4 text-xs tracking-wide">Ingresá cantidad</div>
+<div class="flex gap-2.5">
+<button onclick="closeModal()" class="flex-1 bg-white/10 hover:bg-white/15 py-3 rounded-xl font-bold text-xs transition active:scale-95">Cancelar</button>
+<button id="btnConfirm" onclick="confirmBuy()" class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-95 py-3 rounded-xl font-bold text-xs shadow-lg shadow-purple-500/25 transition active:scale-95">Confirmar Pedido</button>
+</div>
+<p id="mMsg" class="text-xs text-center mt-3"></p>
+</div>
+</div>
+
+<div id="faqModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4" onclick="if(event.target===this)closeModalFAQ()">
+<div class="card p-6 md:p-7 w-full max-w-lg rounded-[2rem] max-h-[85vh] overflow-y-auto shadow-2xl border-purple-500/25 bg-[#120d17]">
+<div class="flex justify-between items-center mb-4"><h3 class="font-black text-sm text-purple-100">❓ Guía de Ayuda y Preguntas Frecuentes</h3><button onclick="closeModalFAQ()" class="bg-white/10 hover:bg-white/20 w-7 h-7 rounded-full flex items-center justify-center text-xs transition">✕</button></div>
+<div class="text-xs text-gray-300 space-y-3">
+<div class="bg-white/5 p-3.5 rounded-2xl border border-white/5 leading-relaxed"><b>Recargas:</b> Copiá tu usuario único desde "Mi Cuenta" y envianos el comprobante por WhatsApp para acreditar tus fondos al instante.</div>
+<div class="bg-white/5 p-3.5 rounded-2xl border border-white/5 leading-relaxed"><b>Seguridad:</b> Tu cuenta está protegida. Jamás solicitamos contraseñas ni datos sensibles.</div>
+</div>
+<button onclick="closeModalFAQ()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-95 py-3 rounded-xl font-bold text-xs mt-6 shadow-lg shadow-purple-500/25 transition active:scale-98">Entendido</button>
+</div>
+</div>
+
+<a id="wa-float" href="#" target="_blank" class="fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center z-40 shadow-2xl hover:scale-110 transition active:scale-95" style="background:#25D366"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="w-7 h-7"></a>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyALswg4dgodrGIjg7mKgR9gM5iZISg_JqU",authDomain:"javicellpy.firebaseapp.com",projectId:"javicellpy"};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const API='https://seguidoresjavicellpy.up.railway.app/api';
+const GRAD='linear-gradient(135deg,#6366f1,#a855f7,#ec4899)';
+
+const ICONS={
+  instagram:"https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+  tiktok:"https://cdn-icons-png.flaticon.com/512/3046/3046121.png",
+  facebook:"https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg",
+  youtube:"https://upload.wikimedia.org/wikipedia/commons/7/72/YouTube_social_white_square_%282017%29.svg",
+  chatgpt:"https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+  twitter:"https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg",
+  x:"https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg",
+  telegram:"https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg",
+  whatsapp:"https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg",
+  netflix:"https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_N_logo.svg",
+  netlyx:"https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_N_logo.svg",
+  crunchyroll:"https://upload.wikimedia.org/wikipedia/commons/0/08/Crunchyroll_Logo.svg",
+  crunshyrol:"https://upload.wikimedia.org/wikipedia/commons/0/08/Crunchyroll_Logo.svg",
+  gemini:"https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg",
+  twitch:"https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg",
+  discord:"https://upload.wikimedia.org/wikipedia/commons/0/08/Discord_logo_svg.svg",
+  maps:"https://upload.wikimedia.org/wikipedia/commons/3/39/Google_Maps_icon_%282020%29.svg",
+  google:"https://upload.wikimedia.org/wikipedia/commons/3/39/Google_Maps_icon_%282020%29.svg",
+  kwai:"https://upload.wikimedia.org/wikipedia/commons/7/76/Kwai_logo.svg",
+  threads:"https://upload.wikimedia.org/wikipedia/commons/9/9d/Threads_%28app%29_logo.svg",
+  treads:"https://upload.wikimedia.org/wikipedia/commons/9/9d/Threads_%28app%29_logo.svg"
+};
+
+function getIcon(s){
+  if(!s||!s.name)return null;
+  const n=norm(s.name);
+  for(const k in ICONS){if(n.includes(k))return ICONS[k];}
+  return null;
+}
+
+function showToast(m,t='success'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className='toast';d.innerHTML=`<span>${t==='success'?'✨':'❌'}</span><span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3500);}
+function setCookie(n,v,d=30){const e=new Date();e.setTime(e.getTime()+d*864e5);document.cookie=`${n}=${encodeURIComponent(v)};expires=${e.toUTCString()};path=/;SameSite=Lax`;}
+function getCookie(n){const m=document.cookie.match(new RegExp('(^| )'+n+'=([^;]+)'));return m?decodeURIComponent(m[2]):null;}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+
+let servicios=[],currentServ=null,currentUsername=null,WA_NUM='595983399906',currentPlat='all';
+try{const sv=JSON.parse(getCookie('javi_user')||'null');if(sv&&sv.username)currentUsername=sv.username;}catch(e){}
+
+let authReady=false;
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+auth.onAuthStateChanged(async u=>{if(u){currentUsername=u.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g,'');setCookie('javi_user',JSON.stringify({email:u.email,username:currentUsername}),30);document.getElementById('btnLogin').textContent='👤 Mi Cuenta';document.getElementById('userBal').classList.remove('hidden');document.getElementById('loginBox').classList.add('hidden');document.getElementById('userBox').classList.remove('hidden');loadMe();}else{if(authReady){currentUsername=null;document.getElementById('btnLogin').textContent='Iniciar Sesión';document.getElementById('userBal').classList.add('hidden');document.getElementById('loginBox').classList.remove('hidden');document.getElementById('userBox').classList.add('hidden');}}authReady=true;});
+function login(){const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});auth.signInWithPopup(p).catch(()=>auth.signInWithRedirect(p));}
+function logout(){setCookie('javi_user','',-1);auth.signOut();closeProfile();}
+function openProfile(){document.getElementById('profileModal').classList.remove('hidden');if(currentUsername)document.getElementById('myUsername').textContent='@'+currentUsername;}
+function closeProfile(){document.getElementById('profileModal').classList.add('hidden');}
+function openModalFAQ(){document.getElementById('faqModal').classList.remove('hidden');}
+function closeModalFAQ(){document.getElementById('faqModal').classList.add('hidden');}
+function copiarUsuario(){if(currentUsername){navigator.clipboard.writeText(currentUsername);showToast('¡Usuario copiado con éxito!');}}
+
+function showTab(t){
+  const isCat = t === 'catalogo';
+  document.getElementById('tab-catalogo').classList.toggle('hidden', !isCat);
+  document.getElementById('tab-pedidos').classList.toggle('hidden', isCat);
+  
+  const btnCat = document.getElementById('tabBtnCat');
+  const btnPed = document.getElementById('tabBtnPed');
+  
+  if (isCat) {
+    btnCat.style.background = GRAD;
+    btnCat.className = "px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md shadow-purple-500/20 transition";
+    btnPed.style.background = "rgba(255, 255, 255, 0.05)";
+    btnPed.className = "hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-xs font-medium text-gray-300 transition";
+  } else {
+    btnCat.style.background = "rgba(255, 255, 255, 0.05)";
+    btnCat.className = "hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-xs font-medium text-gray-300 transition";
+    btnPed.style.background = GRAD;
+    btnPed.className = "px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md shadow-purple-500/20 transition";
+    renderOrders();
+  }
+}
+
+async function init(){
+document.getElementById('loading').classList.remove('hidden');document.getElementById('errBox').classList.add('hidden');
+try{const sp=await fetch(API+'/public-settings').then(r=>r.json());if(sp.whatsapp)WA_NUM=sp.whatsapp;if(sp.announce)document.getElementById('announce').textContent=sp.announce;}catch(e){}
+document.getElementById('wa-float').href='https://wa.me/'+WA_NUM;document.getElementById('wa-link').href='https://wa.me/'+WA_NUM;
+document.getElementById('btnRecharge').onclick=()=>window.open('https://wa.me/'+WA_NUM+'?text='+encodeURIComponent('Hola, quiero recargar. Mi usuario: '+(currentUsername||'')));
+try{const r=await fetch(API+'/services');if(!r.ok)throw 0;const j=await r.json();servicios=j.data||[];document.getElementById('loading').classList.add('hidden');render(servicios);renderPlats();}catch(e){document.getElementById('loading').classList.add('hidden');document.getElementById('errBox').classList.remove('hidden');}
+}
+
+function renderPlats(){
+  const candidatePlats = [
+    { id: 'instagram', keys: ['instagram'] },
+    { id: 'tiktok', keys: ['tiktok'] },
+    { id: 'facebook', keys: ['facebook'] },
+    { id: 'youtube', keys: ['youtube'] },
+    { id: 'x', keys: ['x', 'twitter'] },
+    { id: 'telegram', keys: ['telegram'] },
+    { id: 'whatsapp', keys: ['whatsapp'] },
+    { id: 'chatgpt', keys: ['chatgpt'] },
+    { id: 'netflix', keys: ['netflix', 'netlyx'] },
+    { id: 'crunchyroll', keys: ['crunchyroll', 'crunshyrol'] },
+    { id: 'gemini', keys: ['gemini'] },
+    { id: 'twitch', keys: ['twitch'] },
+    { id: 'discord', keys: ['discord'] },
+    { id: 'maps', keys: ['maps', 'google'] },
+    { id: 'kwai', keys: ['kwai'] },
+    { id: 'threads', keys: ['threads', 'treads'] }
+  ];
+
+  const activePlats = candidatePlats.filter(plat => 
+    servicios.some(s => {
+      const nameNorm = norm(s.name);
+      return plat.keys.some(k => nameNorm.includes(k));
+    })
+  );
+
+  const mainKeys = candidatePlats.flatMap(p => p.keys);
+  const hasOtros = servicios.some(s => {
+    const nameNorm = norm(s.name);
+    return !mainKeys.some(k => nameNorm.includes(k));
+  });
+
+  if (currentPlat !== 'all' && currentPlat !== 'otros' && !activePlats.some(p => p.id === currentPlat)) {
+    currentPlat = 'all';
+  } else if (currentPlat === 'otros' && !hasOtros) {
+    currentPlat = 'all';
+  }
+
+  const otrosBtn = hasOtros ? `
+    <div onclick="setPlat('otros')" class="card p-2 text-center cursor-pointer min-w-[65px]" style="${currentPlat === 'otros' ? `background:${GRAD};color:white` : ''}">
+      <div class="text-base">📁</div><p class="text-[9px] font-bold mt-1">Otros</p>
+    </div>` : '';
+
+  document.getElementById('platGrid').innerHTML = `
+    <div onclick="setPlat('all')" class="card p-2 text-center cursor-pointer min-w-[65px]" style="${currentPlat === 'all' ? `background:${GRAD};color:white` : ''}">
+      <div class="text-base">🌐</div><p class="text-[9px] font-bold mt-1">Todos</p>
+    </div>` +
+    activePlats.map(plat => `
+      <div onclick="setPlat('${plat.id}')" class="card p-2 text-center cursor-pointer min-w-[65px]" style="${currentPlat === plat.id ? `background:${GRAD};color:white` : ''}">
+        <img src="${ICONS[plat.id] || 'https://cdn-icons-png.flaticon.com/512/3067/3067260.png'}" class="w-5 h-5 mx-auto bg-white rounded-md p-0.5 object-contain shadow-sm">
+        <p class="text-[9px] font-bold capitalize mt-1 truncate">${plat.id}</p>
+      </div>
+    `).join('') + otrosBtn;
+}
+
+function setPlat(id){currentPlat=id;renderPlats();filtrar();}
+
+function render(l){
+  document.getElementById('list').innerHTML=l.map(s=>{
+    const priceType = s.price_type || 'per_1k';
+    const pgs = s.price_gs ? '₲' + Number(s.price_gs).toLocaleString() + (priceType === 'per_unit' ? ' /unidad' : ' /1k') : '';
+    const ic = getIcon(s);
+
+    return `<div class="card p-4 flex flex-col justify-between">
+      <div>
+        <div class="flex gap-3 mb-3">
+          ${ic ? `<img loading="lazy" src="${ic}" class="w-10 h-10 bg-white rounded-xl p-2 object-contain shadow-sm">` : ''}
+          <div class="flex-1">
+            <h3 class="font-bold text-xs text-purple-50 leading-snug">${esc(s.name)}</h3>
+            <div class="flex gap-1.5 mt-2">
+              <span class="badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">✨ Disponible</span>
+              <span class="badge bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">${pgs}</span>
+            </div>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-400 mb-3 bg-black/40 p-2.5 rounded-xl border border-white/5 font-medium">Mín: ${s.min} • Máx: ${Number(s.max).toLocaleString()}</p>
+      </div>
+      <div class="flex justify-between items-center pt-3 border-t border-purple-500/10">
+        <span class="text-[10px] text-gray-400 font-medium tracking-wide">Procesamiento automático</span>
+        <button onclick="openBuy('${s.service}')" class="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md shadow-purple-500/20 transition hover:scale-105 active:scale-95" style="background:${GRAD}">Comprar</button>
+      </div>
+    </div>`;
+  }).join('') || '<p class="text-center py-12 text-gray-500 col-span-2 text-xs">No se encontraron servicios disponibles</p>';
+}
+
+let deb;document.getElementById('search').addEventListener('input',()=>{clearTimeout(deb);deb=setTimeout(filtrar,300);});
+
+function filtrar(){
+  const q=norm(document.getElementById('search').value);
+  const mainKeys = [
+    'instagram', 'tiktok', 'facebook', 'youtube', 'x', 'twitter', 
+    'telegram', 'whatsapp', 'chatgpt', 
+    'netflix', 'netlyx', 'crunchyroll', 'crunshyrol', 'gemini', 
+    'twitch', 'discord', 'maps', 'google', 'kwai', 'threads', 'treads'
+  ];
+
+  let list=servicios.filter(s=>norm(s.name).includes(q));
+
+  if(currentPlat === 'otros'){
+    list = list.filter(s => {
+      const name = norm(s.name);
+      return !mainKeys.some(k => name.includes(k));
+    });
+  } else if(currentPlat !== 'all'){
+    list = list.filter(s => {
+      const n = norm(s.name);
+      if (currentPlat === 'x') return n.includes('x') || n.includes('twitter');
+      if (currentPlat === 'netflix') return n.includes('netflix') || n.includes('netlyx');
+      if (currentPlat === 'crunchyroll') return n.includes('crunchyroll') || n.includes('crunshyrol');
+      if (currentPlat === 'threads') return n.includes('threads') || n.includes('treads');
+      if (currentPlat === 'maps') return n.includes('maps') || n.includes('google');
+      return n.includes(currentPlat);
+    });
+  }
+
+  render(list);
+}
+
+function openBuy(id){
+  if(!currentUsername){openProfile();showToast('Inicia sesión para realizar tu pedido','error');return;}
+  currentServ=servicios.find(x=>String(x.service)===String(id));
+  if(!currentServ)return;
+
+  document.getElementById('mTitle').textContent=currentServ.name;
+  document.getElementById('mMeta').innerHTML=`Mínimo: ${currentServ.min} • Máximo: ${Number(currentServ.max).toLocaleString()}`;
+  document.getElementById('mQty').value='';
+  document.getElementById('mLink').value='';
+  document.getElementById('mPrice').textContent='Ingresá cantidad válida';
+
+  const inputType = currentServ.input_type || 'link';
+  const lblInput = document.getElementById('lblInput');
+  const inputLink = document.getElementById('mLink');
+
+  if(inputType === 'email'){
+    lblInput.textContent = '✉️ Correo Electrónico';
+    inputLink.placeholder = 'ejemplo@correo.com';
+  } else if(inputType === 'username'){
+    lblInput.textContent = '👤 Nombre de Usuario (@usuario)';
+    inputLink.placeholder = '@usuario';
+  } else if(inputType === 'custom'){
+    lblInput.textContent = '📝 ID o Texto Requerido';
+    inputLink.placeholder = 'Escribe los datos requeridos...';
+  } else {
+    lblInput.textContent = '🔗 Enlace o URL de Perfil/Publicación';
+    inputLink.placeholder = 'https://...';
+  }
+
+  document.getElementById('buyModal').classList.remove('hidden');
+}
+
+function closeModal(){document.getElementById('buyModal').classList.add('hidden');}
+
+document.getElementById('mQty').addEventListener('input',()=>{
+  if(!currentServ)return;
+  const q=Number(document.getElementById('mQty').value||0);
+  if(!q){document.getElementById('mPrice').textContent='Ingresá cantidad válida';return;}
+
+  let total = 0;
+  const scale = Number(currentServ.scale || 1);
+
+  if (currentServ.price_type === 'per_unit') {
+    total = Math.round(Number(currentServ.price_gs) * q);
+  } else {
+    // Cálculo proporcional utilizando la cantidad base configurada (por defecto 1000)
+    const baseQty = Number(currentServ.base_quantity || 1000);
+    total = Math.round((Number(currentServ.price_gs) / baseQty) * (q / scale));
+  }
+
+  document.getElementById('mPrice').textContent='Total a pagar: ₲'+total.toLocaleString();
+});
+
+async function confirmBuy(){
+  const link=document.getElementById('mLink').value.trim();
+  const qty=Number(document.getElementById('mQty').value);
+  const inputType = currentServ.input_type || 'link';
+
+  if(!link){showToast('Por favor completa el campo requerido','error');return;}
+  if(inputType === 'link' && !link.startsWith('http')){showToast('Enlace URL inválido','error');return;}
+  if(inputType === 'email' && !link.includes('@')){showToast('Correo electrónico inválido','error');return;}
+  if(qty<currentServ.min||qty>currentServ.max){showToast('Cantidad fuera del rango permitido','error');return;}
+
+  const btn=document.getElementById('btnConfirm');
+  btn.disabled=true;btn.textContent='Procesando...';
+  try{
+    const r=await fetch(API+'/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:currentServ.service,link,quantity:qty,username:currentUsername})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Error');
+    showToast('¡Pedido creado con éxito! ✨');
+    let my=[];try{my=JSON.parse(localStorage.getItem('my_orders')||'[]');}catch(e){}
+    my.unshift({id:d.order?.id||Date.now(),service:currentServ.name,link,quantity:qty,total:d.order?.total_gs||0,date:new Date().toLocaleDateString()});
+    localStorage.setItem('my_orders',JSON.stringify(my.slice(0,50)));
+    loadMe();
+    setTimeout(()=>{closeModal();showTab('pedidos');},800);
+  }catch(e){showToast(e.message,'error');}
+  btn.disabled=false;btn.textContent='Confirmar Pedido';
+}
+
+async function loadMe(){if(!currentUsername)return;try{const me=await fetch(API+'/me',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:currentUsername})}).then(r=>r.json());const b='₲'+Number(me.balance||0).toLocaleString();document.getElementById('userBal').textContent=b;document.getElementById('myBalance').textContent=b;}catch(e){}}
+
+function renderOrders(){let my=[];try{my=JSON.parse(localStorage.getItem('my_orders')||'[]');}catch(e){}document.getElementById('ordersList').innerHTML=my.map(x=>`<div class="card p-4"><div class="flex justify-between items-start"><b class="text-xs text-purple-100">#${x.id} • ${esc(x.service)}</b><span class="text-[10px] text-gray-400">${x.date||''}</span></div><p class="text-[11px] text-gray-400 truncate mt-1">📥 ${esc(x.link)}</p><p class="text-xs text-indigo-300 mt-2 font-medium">₲${Number(x.total||0).toLocaleString()} • Cantidad: ${x.quantity}</p></div>`).join('')||'<div class="card p-8 text-center text-gray-500 text-xs">Aún no registras pedidos</div>';document.getElementById('myOrdersCount').textContent=my.length;}
+
+init();
+</script>
+</body>
+</html>
