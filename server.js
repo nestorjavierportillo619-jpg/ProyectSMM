@@ -26,7 +26,14 @@ let db = {
   providers: [],
   services: [],
   orders: [],
-  settings: { whatsapp: '595983399906', margin: 30, usd_gs: 7500, announce: '' }
+  settings: { 
+    whatsapp: '595983399906', 
+    margin: 30, 
+    usd_gs: 7500, 
+    announce: '', 
+    show_float_wa: true, 
+    show_recharge_btn: true 
+  }
 };
 
 let dbLoaded = false;
@@ -38,6 +45,12 @@ async function loadDB() {
     
     if (row && row.data) {
       db = { ...db, ...row.data };
+      // Asegurar que las configuraciones nuevas existan si la DB es antigua
+      db.settings = { 
+        show_float_wa: true, 
+        show_recharge_btn: true, 
+        ...db.settings 
+      };
       dbLoaded = true;
       console.log('✅ DB cargada desde Supabase');
     } else {
@@ -61,8 +74,17 @@ async function saveDB() {
 }
 
 app.get('/api/health', (req, res) => res.json({ ok: true, version: 'v3.6-fix-definitivo' }));
-app.get('/api/public-settings', (req, res) => res.json({ whatsapp: db.settings.whatsapp, announce: db.settings.announce || '' }));
+
+// Endpoint público optimizado para leer ajustes y visibilidad de botones
+app.get('/api/public-settings', (req, res) => res.json({ 
+  whatsapp: db.settings.whatsapp, 
+  announce: db.settings.announce || '',
+  show_float_wa: db.settings.show_float_wa !== false,
+  show_recharge_btn: db.settings.show_recharge_btn !== false
+}));
+
 app.get('/api/settings', authMaster, (req, res) => res.json(db.settings));
+
 app.post('/api/settings', authMaster, (req, res) => {
   db.settings = { ...db.settings, ...req.body };
   saveDB();
@@ -182,7 +204,6 @@ app.post('/api/sync-services', authMaster, async (req, res) => {
           db.services[idx].rate = cost;
           db.services[idx].price_usd = Number(price_usd.toFixed(4));
           
-          // PROTEGE PRECIO Y CANTIDAD BASE EDITADA POR ADMIN
           if (db.services[idx].price_gs === undefined || db.services[idx].price_gs === null) {
             db.services[idx].price_gs = auto_price_gs;
           }
