@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Panel de Control ⚙️ | RJ SEGUIDORES PY</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{colors:{darkBg:'#0b090e',cardBg:'#141019',accentViolet:'#a855f7',accentIndigo:'#6366f1'}}}}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<style>
+body{background:#0b090e;font-family:Inter,system-ui,sans-serif;color:#f3f4f6;overflow-x:hidden}
+.card{background:linear-gradient(145deg, #141019 0%, #0e0a12 100%);border:1px solid rgba(168,85,247,0.18);border-radius:1.25rem;box-shadow:0 4px 20px -2px rgba(0,0,0,0.5)}
+#toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;gap:10px;width:92%;max-width:380px}
+.toast{background:rgba(20, 16, 25, 0.95);border:1px solid rgba(168,85,247,0.3);backdrop-filter:blur(10px);padding:14px 18px;border-radius:18px;display:flex;align-items:center;gap:12px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.6);animation:su .35s cubic-bezier(0.16, 1, 0.3, 1)}
+@keyframes su{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body class="min-h-screen pb-12 flex flex-col justify-between">
+<div id="toast-container"></div>
+
+<header class="p-4 flex justify-between items-center max-w-4xl mx-auto w-full border-b border-white/5">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-lg shadow-md shadow-purple-500/20">⚙️</div>
+<div class="font-black text-xs md:text-sm tracking-wider">PANEL DE CONTROL<span class="text-purple-400 font-medium">ADMIN</span></div>
+</div>
+<a href="index.html" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3.5 py-1.5 rounded-lg text-xs font-bold transition">← Volver al Sitio</a>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 w-full mt-6 space-y-5">
+  <div class="card p-6 space-y-6">
+    <div>
+      <h3 class="font-black text-sm text-purple-100 flex items-center gap-2">
+        <span>💬</span> Gestión de WhatsApp y Botones Flotantes
+      </h3>
+      <p class="text-xs text-gray-400 mt-1">
+        Controla la visibilidad del botón flotante y el botón de recargas directas, además del número principal de contacto.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- Control Botón Flotante -->
+      <div class="bg-black/40 p-4 rounded-xl border border-white/5 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">💬 Botón Flotante WhatsApp</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="toggleWaFloat" checked class="sr-only peer">
+            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
+        <p class="text-[11px] text-gray-400">Muestra u oculta el icono flotante de asistencia en la esquina inferior derecha.</p>
+      </div>
+
+      <!-- Control Botón Recargas -->
+      <div class="bg-black/40 p-4 rounded-xl border border-white/5 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">💎 Botón "Recargar Saldo"</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="toggleRechargeBtn" checked class="sr-only peer">
+            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
+        <p class="text-[11px] text-gray-400">Muestra u oculta el botón de recargas en el modal de usuario.</p>
+      </div>
+    </div>
+
+    <div class="space-y-4 pt-2 border-t border-white/5">
+      <div>
+        <label class="text-xs font-bold text-purple-300 block mb-1">📱 Número de WhatsApp Principal (con código de país)</label>
+        <input id="inputWaNum" type="text" placeholder="Ej: 595983399906" class="w-full bg-black/50 p-3 rounded-xl text-xs border border-purple-500/20 focus:border-purple-400 outline-none text-white">
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-purple-300 block mb-1">📢 Mensaje de Anuncio Global (Banner superior)</label>
+        <input id="inputAnnounce" type="text" placeholder="Ej: ¡Servicios nuevos disponibles en el panel!" class="w-full bg-black/50 p-3 rounded-xl text-xs border border-purple-500/20 focus:border-purple-400 outline-none text-white">
+      </div>
+
+      <button onclick="saveAllSettings()" class="w-full bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:opacity-95 py-3 rounded-xl font-bold text-xs shadow-lg shadow-purple-500/25 transition active:scale-98">Guardar Cambios en Servidor</button>
+    </div>
+  </div>
+</main>
+
+<footer class="max-w-4xl mx-auto px-4 border-t border-white/5 pt-6 text-xs text-gray-500 text-center tracking-wide">© 2026 RJ SEGUIDORES PY ✨ - Panel de Gestión</footer>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyALswg4dgodrGIjg7mKgR9gM5iZISg_JqU",authDomain:"javicellpy.firebaseapp.com",projectId:"javicellpy"};
+firebase.initializeApp(firebaseConfig);
+const API='https://seguidoresjavicellpy.up.railway.app/api';
+const MASTER_KEY = 'Romi';
+
+function showToast(m,t='success'){const c=document.getElementById('toast-container');const d=document.createElement('div');d.className='toast';d.innerHTML=`<span>${t==='success'?'✨':'❌'}</span><span>${m}</span>`;c.appendChild(d);setTimeout(()=>d.remove(),3500);}
+
+async function loadSettings(){
+  try{
+    const sp = await fetch(API+'/public-settings').then(r=>r.json());
+    if(sp.whatsapp) document.getElementById('inputWaNum').value = sp.whatsapp;
+    if(sp.announce) document.getElementById('inputAnnounce').value = sp.announce;
+    if(sp.show_float_wa !== undefined) document.getElementById('toggleWaFloat').checked = sp.show_float_wa;
+    if(sp.show_recharge_btn !== undefined) document.getElementById('toggleRechargeBtn').checked = sp.show_recharge_btn;
+  }catch(e){
+    showToast('No se pudieron cargar los ajustes del servidor', 'error');
+  }
+}
+
+async function saveAllSettings(){
+  const whatsapp = document.getElementById('inputWaNum').value.trim();
+  const announce = document.getElementById('inputAnnounce').value.trim();
+  const show_float_wa = document.getElementById('toggleWaFloat').checked;
+  const show_recharge_btn = document.getElementById('toggleRechargeBtn').checked;
+
+  try {
+    const r = await fetch(API + '/settings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-master-key': MASTER_KEY
+      },
+      body: JSON.stringify({ whatsapp, announce, show_float_wa, show_recharge_btn })
+    });
+
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || 'Error al guardar');
+
+    // Sincroniza también en la sesión local
+    localStorage.setItem('javi_panel_config', JSON.stringify({ whatsapp, announce, show_float_wa, show_recharge_btn }));
+
+    showToast('¡Ajustes guardados con éxito en Supabase! ✨');
+  } catch(e) {
+    showToast('Error al guardar: ' + e.message, 'error');
+  }
+}
+
+loadSettings();
+</script>
+</body>
+</html>
